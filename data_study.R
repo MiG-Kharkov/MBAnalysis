@@ -1,7 +1,7 @@
 library(dplyr)
 library(ggplot2)
 library(data.table)
-library(recosystem)
+library(recosystem) 
 
 products             <- fread('Data/products.csv')
 aisles               <- fread('Data/aisles.csv')
@@ -98,18 +98,28 @@ tttt <- cbind(predictionSet, userRating$averRate)
 
 
 ## Write P and Q matrices to files
-P_file = out_file("p_out.txt")
-Q_file = out_file("q_out.txt")
-r$output(P_file, Q_file)
-Pmatrix <- read.table(P_file@dest, header = FALSE, sep = " ")
-Qmatrix <- read.table(Q_file@dest, header = FALSE, sep = " ")
+# P_file = out_file("p_out.txt")
+# Q_file = out_file("q_out.txt")
+# r$output(P_file, Q_file)
+# Pmatrix <- read.table(P_file@dest, header = FALSE, sep = " ")
+# Qmatrix <- read.table(Q_file@dest, header = FALSE, sep = " ")
+pqMatrix <- r$output(out_memory(),out_memory())
+Pmatrix <- pqMatrix$P
+Qmatrix <- pqMatrix$Q
 
 # Вычисляем элемент напрямую или через функцию вероятности
-pUser <- 1
-qItem <- 196
-sum(Pmatrix[pUser,]*Qmatrix[qItem,])
-# 0.2599087
+
+pUser <- rep(1, 200)
+qItem <- c(1:200)
+matrixPred <- sapply(1:200, matrixSumm)
+matrixSumm <-
+  function(x) {
+    sum(Pmatrix[pUser[x], ] * Qmatrix[qItem[x], ])
+  }
 
 testSet <- data_memory(pUser, qItem)
-(r$predict(testSet, out_memory()))
-# 0.03858016
+funcPred <- r$predict(testSet, out_memory())
+
+# создаем табличку с результатами полученными через матрицы или фукцию предсказания
+compPred <- cbind(matrixPred, funcPred, div = matrixPred/funcPred)
+
