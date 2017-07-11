@@ -111,11 +111,9 @@ Qmatrix <- pqMatrix$Q
 
 pUser <- rep(1, 200)
 qItem <- c(1:200)
-matrixPred <- sapply(1:200, matrixSumm)
-matrixSumm <-
-  function(x) {
-    sum(Pmatrix[pUser[x], ] * Qmatrix[qItem[x], ])
-  }
+matrixPred <- sapply(1:200, function(x) {
+  sum(Pmatrix[pUser[x],] * Qmatrix[qItem[x],])
+})
 
 testSet <- data_memory(pUser, qItem)
 funcPred <- r$predict(testSet, out_memory())
